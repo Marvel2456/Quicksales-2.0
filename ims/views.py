@@ -448,12 +448,25 @@ def delete_category(request):
             messages.success(request, "Succesfully deleted")
             return redirect('category_list')
 
+@for_sub_admin
+@login_required
+@is_unsubscribed
+def branchInventory(request):
+    branch = Branch.objects.all()
+
+    context = {
+        'branch':branch
+    }
+
+    return render(request, 'ims/branch_inv.html', context)
+
 
 @for_sub_admin
 @login_required
 @is_unsubscribed
-def inventory_list(request):
-    inventory = Inventory.objects.all()
+def inventory_list(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
     product = Product.objects.filter().all()
     paginator = Paginator(Inventory.objects.all(), 3)
     page = request.GET.get('page')
@@ -472,6 +485,7 @@ def inventory_list(request):
         inventory_page = inventory.filter(product__product_name__icontains=product_contains_query)
 
     context = {
+        'branch':branch,
         'inventory':inventory,
         'product':product,
         'form':form,
@@ -520,8 +534,9 @@ def restock(request):
 @for_sub_admin
 @login_required
 @is_unsubscribed
-def inventoryView(request):
-    inventory = Inventory.objects.all()
+def inventoryView(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
     product = Product.objects.filter().all()
     paginator = Paginator(Inventory.objects.all(), 3)
     page = request.GET.get('page')
@@ -533,6 +548,7 @@ def inventoryView(request):
         inventory_page = inventory.filter(product__product_name__icontains=product_contains_query)
 
     context = {
+        'branch':branch,
         'inventory':inventory,
         'product':product,
         'inventory_page':inventory_page,
@@ -540,14 +556,29 @@ def inventoryView(request):
     }
     return render(request, 'ims/product_list.html', context)
 
+
 @for_sub_admin
 @login_required
 @is_unsubscribed
-def countView(request):
-    inventory = Inventory.objects.all()
-    audit = Inventory.history.all()
+def branchCount(request):
+    branch = Branch.objects.all()
 
     context = {
+        'branch':branch
+    }
+
+    return render(request, 'ims/branch_count.html', context)
+
+@for_sub_admin
+@login_required
+@is_unsubscribed
+def countView(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
+    audit = Inventory.history.filter(branch_id = pk).all()
+
+    context = {
+        'branch':branch,
         'inventory':inventory,
         'audit':audit
     }

@@ -84,6 +84,27 @@ def branchView(request, pk):
     return render(request, 'account/branch_list.html', context)
 
 
+def staffPosView(request, pk):
+    pos = Pos.objects.get(id = pk)
+    staff = CustomUser.objects.filter(pos_id = pk)
+
+    context = {
+        'pos':pos,
+        'staff':staff
+    }
+    return render(request, 'account/pos_staff.html', context)
+
+def posSaleView(request, pk):
+    pos = Pos.objects.get(id=pk)
+    sale = Sale.objects.filter(staff_id = pk)
+
+    context = {
+        'pos':pos,
+        'sale':sale
+    }
+    return render(request, 'account/pos_sale.html', context)
+
+
 def terminal(request):
     pos = Pos.objects.all()
     form = CreatePosForm()

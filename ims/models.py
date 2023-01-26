@@ -1,6 +1,6 @@
 from datetime import date
 from django.db import models
-from account.models import CustomUser, Pos
+from account.models import CustomUser, Pos, Branch
 from simple_history.models import HistoricalRecords
 
 
@@ -31,6 +31,7 @@ class Product(models.Model):
         return self.product_name
 
 class Inventory(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='products')
     quantity = models.IntegerField(default=0)
     quantity_available = models.IntegerField(default=0)

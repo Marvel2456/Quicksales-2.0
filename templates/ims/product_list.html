@@ -6,7 +6,7 @@
 
 <div class="app-content pt-3 p-md-3 p-lg-4">
     <div class="container-xl">
-        
+        {% if user.branch == branch or user.is_admin %}
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Inventory</h1>
@@ -50,7 +50,7 @@
                                 </thead>
                                 <tbody>
                                     <div class="m-2 py-2">
-                                        <a class="btn app-btn-secondary " href="{% url 'count' %}">
+                                        <a class="btn app-btn-secondary " href="{% url 'count' branch.id %}">
                                             <i class="fas fa-eye"></i>
                                             View Count History
                                         </a>
@@ -99,7 +99,9 @@
             </div><!--tab-pane-->
             
         </div><!--//tab-content-->
-        
+    {% else %} 
+    This is not your branch, you can only access your branch!!!
+    {% endif %}
     </div><!--//container-fluid-->
 </div><!--//app-content-->
 

@@ -23,7 +23,8 @@ urlpatterns = [
     path('product/<str:pk>/', views.product, name='product'),
     path('edit_product/', views.edit_product, name='edit_product'),
     path('set_reorder/', views.edit_inventory, name='set_reorder'),
-    path('inventorys/', views.inventory_list, name='inventorys'),
+    path('inventorys/<str:pk>/', views.inventory_list, name='inventorys'),
+    path('branchinv/', views.branchInventory, name='branchinv'),
     path('inventory/<str:pk>/', views.inventory, name='inventory'),
     path('delete_inventory/', views.delete_inventory, name='delete_inventory'),
     path('staff/', views.staffs, name='staff'),
@@ -39,9 +40,10 @@ urlpatterns = [
     path('create_ticket/', views.createTicket, name='create_ticket'),
     path('tickets/<str:pk>', views.Ticket, name='tickets'),
     path('reports/', views.report, name='reports'),
-    path('count/', views.countView, name='count'),
+    path('branchcount/', views.branchCount, name='branchcount'),
+    path('count/<str:pk>/', views.countView, name='count'),
     path('addcount/', views.addCount, name='addcount'),
-    path('productlist/', views.inventoryView, name='productlist'),
+    path('productlist/<str:pk>/', views.inventoryView, name='productlist'),
 ]
 # watch out if the value of the variance changes or it is stamped to each date
 # what happens when users logs in to another POS and makes sale note: should not be possible

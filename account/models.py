@@ -39,7 +39,7 @@ class Pos(models.Model):
 
 
 class CustomUser(AbstractUser):
-    branch = models.ManyToManyField(Branch)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE, blank=True, null=True)
     pos = models.ForeignKey(Pos, on_delete=models.SET_NULL, blank=True, null=True)
     is_admin = models.BooleanField(default = False)
     is_sub_admin = models.BooleanField(default = False)
@@ -48,7 +48,6 @@ class CustomUser(AbstractUser):
     address = models.CharField(max_length = 200)
     is_subscribed = models.BooleanField(default=True)
     date_created = models.DateTimeField(auto_now_add=True)
-
 
 
 

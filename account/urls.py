@@ -12,4 +12,6 @@ urlpatterns = [
     path('deletebranch/', views.deleteBranch, name='deletebranch'),
     path('posview/<str:pk>/', views.posView, name='posview'),
     path('branchview/<str:pk>/', views.branchView, name='branchview'),
+    path('posstaff/<str:pk>/', views.staffPosView, name='posstaff'),
+    path('possale/<str:pk>/', views.posSaleView, name='possale'),
 ]

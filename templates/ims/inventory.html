@@ -3,8 +3,11 @@
 {% block title %} Inventory {% endblock title %}
 
 {% block content %}
+
 <div class="app-content pt-3 p-md-3 p-lg-4">
     <div class="container-xl">
+        {% if user.branch == branch or user.is_admin %}
+        
         
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
@@ -112,6 +115,9 @@
         </div><!--//tab-content-->
         
     </div><!--//container-fluid-->
+    {% else %} 
+    This is not your branch, you can only access your branch!!!
+    {% endif %}
 </div><!--//app-content-->
 
 {% endblock content %}
