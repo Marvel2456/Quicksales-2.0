@@ -74,6 +74,7 @@ class Inventory(models.Model):
 
 
 class Sale(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     staff = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, blank=True, null=True)
     total_profit = models.FloatField(default=0, blank=True, null=True)
     final_total_price = models.FloatField(default=0, blank=True, null=True)
@@ -121,6 +122,7 @@ class Sale(models.Model):
 
 
 class SalesItem(models.Model):
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
     inventory = models.ForeignKey(Inventory, on_delete=models.SET_NULL, blank=True, null=True)
     sale = models.ForeignKey(Sale, on_delete=models.SET_NULL, blank=True, null=True)
     total = models.FloatField(default=0)

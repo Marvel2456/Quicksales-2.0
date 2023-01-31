@@ -6,31 +6,43 @@ from .models import CustomUser, LoggedIn, Pos, Branch, Shop
 from .forms import CreateBranchForm, EditBranchForm, CreatePosForm, EditPosForm
 from .decorators import for_admin, for_sub_admin, is_unsubscribed
 from ims.models import Sale, SalesItem, Inventory
-
+from django.urls import reverse
 # Create your views here.
 
 def loginUser(request):
+    # branch = Branch.objects.get(id)
     if request.method =='POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
         user = authenticate(request, username=username, password=password)
         
 
-        if user.is_subscribed==False:
+        if user is not None and user.is_subscribed==False:
             messages.info(request, f'Subscription has expired kindly renew to continue')
             return redirect('login')
-        elif user is not None:
-            login(request, user)
-            LoggedIn.objects.create(staff=user,
-            login_id = datetime.now().timestamp(),
-            timestamp = datetime.now()
-            ).save()
-            messages.success(request, f'Welcome {user.username}')
-            return redirect('index')
+        elif user is not None and user.is_subscribed==True:
+            # make a seperate login page for the sub admin and staffs and redirect them there when they login.
+            if user.is_active and user.is_admin:
+                login(request, user)
+                LoggedIn.objects.create(staff=user,
+                login_id = datetime.now().timestamp(),
+                timestamp = datetime.now()
+                ).save()
+                messages.success(request, f'Welcome {user.username}')
+                return redirect('index')
+            elif user.is_active and user.is_sub_admin or user.is_active and user.is_work_staff:
+                login(request, user)
+                LoggedIn.objects.create(staff=user,
+                login_id = datetime.now().timestamp(),
+                timestamp = datetime.now()
+                ).save()
+                messages.success(request, f'Welcome {user.username}')
+                return redirect('dashboard')
         else:
-            messages.info(request, 'Username or Password is not correct')
+             messages.info(request, 'Username or Password is not correct')
 
     return render(request, 'account/login.html')
+
 
 def logoutUser(request):
     logout(request)

@@ -19,7 +19,20 @@ from account.decorators import for_admin, for_staff, for_sub_admin, is_unsubscri
 # Create your views here
 @login_required(login_url=('login'))
 @is_unsubscribed
-def dashboard(request):
+
+def branchDasboard(request):
+    branch = Branch.objects.all()
+
+    context = {
+        'branch':branch
+    }
+    return render(request, 'ims/branchdash.html', context)
+
+@login_required(login_url=('login'))
+@is_unsubscribed
+# @branch_required(branch=('branch_id'))
+def dashboard(request, pk):
+    branch = Branch.objects.get(id=pk)
     now = datetime.now()
     current_year = now.strftime("%Y")
     current_month = now.strftime("%m")
@@ -48,13 +61,14 @@ def dashboard(request):
     ).all()
     total_profits = sum(today_profit.values_list('total_profit', flat=True))
     pending = ErrorTicket.objects.filter(status='Pending')
-    inventory = Inventory.objects.all()
+    inventory = Inventory.objects.filter(branch_id = pk).all()
 
-    sale = Sale.objects.order_by('-total_profit')[:7]
-    item = SalesItem.objects.order_by('-quantity')[:7]
+    sale = Sale.objects.filter(branch_id = pk).order_by('-total_profit')[:7]
+    item = SalesItem.objects.filter(branch_id = pk).order_by('-quantity')[:7]
 
 
     context = {
+        'branch':branch,
         'pending':pending,
         'products':products,
         'category':category,
@@ -69,14 +83,31 @@ def dashboard(request):
     }
     return render(request, 'ims/index.html', context)
 
+def staffDashboard(request):
+    return render(request, 'ims/dashboard.html')
+
 @login_required
 @is_unsubscribed
 @for_admin
-def report(request):
+
+def branchReport(request):
+    branch = Branch.objects.all()
+
+    context = {
+        'branch':branch
+    }
+    return render(request, 'ims/branchrep.html', context)
+
+@login_required
+@is_unsubscribed
+@for_admin
+# @branch_required(branch=('branch_id'))
+def report(request, pk):
+    branch = Branch.objects.get(id=pk)
     now = datetime.now()
     start_date_contains = request.GET.get('start_date')
     end_date_contains = request.GET.get('end_date')
-    sale = Sale.objects.all()
+    sale = Sale.objects.filter(branch_id = pk).all()
 
     if start_date_contains != '' and start_date_contains is not None:
         sale = sale.filter(date_updated__gte=start_date_contains)
@@ -89,17 +120,33 @@ def report(request):
     
 
     context = {
+        'branch':branch,
         'sale':sale,
         'total_profits':total_profits,
     }
     return render(request, 'ims/reports.html', context)
 
+@login_required(login_url=('login'))
+@is_unsubscribed
+@for_admin
+
+def branchStore(request):
+    branch = Branch.objects.all()
+
+    context = {
+        'branch':branch
+    }
+    return render(request, 'ims/branchstore.html', context)
+
+
 @login_required
 @is_unsubscribed
 @for_staff
-def store(request):
-    inventory = Inventory.objects.all()
-    paginator = Paginator(Inventory.objects.all(), 3)
+# @branch_required(branch=('branch_id'))
+def store(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
+    paginator = Paginator(Inventory.objects.all(), 15)
     page = request.GET.get('page')
     inventory_page = paginator.get_page(page)
     nums = "a" *inventory_page.paginator.num_pages
@@ -110,6 +157,7 @@ def store(request):
 
 
     context = {
+        'branch':branch,
         'inventory':inventory,
         'inventory_page':inventory_page,
         'nums':nums
@@ -120,15 +168,18 @@ def store(request):
 @for_staff
 @login_required
 @is_unsubscribed
-def cart(request):
-    inventory = Inventory.objects.all()
+# @branch_required(branch=('branch_id'))
+def cart(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
     
     if request.user.is_authenticated:
         staff = request.user
-        sale , created = Sale.objects.get_or_create(staff=staff, completed=False)
+        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
         items = sale.salesitem_set.all()
         
     context = {
+        'branch':branch,
         'items':items,
         'sale':sale,
         'inventory':inventory
@@ -139,12 +190,14 @@ def cart(request):
 @for_staff
 @login_required
 @is_unsubscribed
-def checkout(request):
-    inventory = Inventory.objects.all()
+# @branch_required(branch=('branch_id'))
+def checkout(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
     
     if request.user.is_authenticated:
         staff = request.user
-        sale , created = Sale.objects.get_or_create(staff=staff, completed=False)
+        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
         items = sale.salesitem_set.all()
         form = PaymentForm()
         if request.method == 'POST':
@@ -155,6 +208,7 @@ def checkout(request):
                 messages.success(request, 'Payment Method Updated')
         
     context = {
+        'branch':branch,
         'items':items,
         'sale':sale,
         'inventory':inventory,
@@ -162,8 +216,9 @@ def checkout(request):
     return render(request, 'ims/checkout.html', context)
 
 
-
-def updateCart(request):
+# @branch_required(branch=('branch_id'))
+def updateCart(request, pk):
+    branch = Branch.objects.get(id=pk)
     data = json.loads(request.body)
     inventoryId = data['inventoryId']
     action = data['action']
@@ -171,9 +226,9 @@ def updateCart(request):
     print('Action:', action)
    
     staff = request.user
-    inventory = Inventory.objects.get(id=inventoryId)
-    sale, created = Sale.objects.get_or_create(staff=staff, completed=False)
-    saleItem, created = SalesItem.objects.get_or_create(sale=sale, inventory=inventory)
+    inventory = Inventory.objects.filter(branch_id = pk).get(id=inventoryId)
+    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
+    saleItem, created = SalesItem.objects.filter(branch_id = pk).get_or_create(sale=sale, inventory=inventory)
 
     if action == 'add':
         saleItem.quantity = (saleItem.quantity + 1)
@@ -183,22 +238,25 @@ def updateCart(request):
         saleItem.delete()
 
     context = {
+        'branch':branch,
         'qty': sale.get_cart_items,
     }
 
     return JsonResponse(context, safe=False)
 
 
-def updateQuantity(request):
+# @branch_required(branch=('branch_id'))
+def updateQuantity(request, pk):
+    branch = Branch.objects.get(id=pk)
     data = json.loads(request.body)
     input_value = int(data['val'])
     inventory_Id = data['invent_id']
     
    
     staff = request.user
-    inventory = Inventory.objects.get(id=inventory_Id)
-    sale, created = Sale.objects.get_or_create(staff=staff, completed=False)
-    saleItem, created = SalesItem.objects.get_or_create(sale=sale, inventory=inventory)
+    inventory = Inventory.objects.filter(branch_id = pk).get(id=inventory_Id)
+    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
+    saleItem, created = SalesItem.objects.filter(branch_id = pk).get_or_create(sale=sale, inventory=inventory)
     saleItem.quantity = input_value
     saleItem.save()
 
@@ -206,6 +264,7 @@ def updateQuantity(request):
         saleItem.delete()
 
     context = {
+        'branch':branch,
         'sub_total':saleItem.get_total,
         'final_total':sale.get_cart_total,
         'total_quantity':sale.get_cart_items,
@@ -214,12 +273,14 @@ def updateQuantity(request):
     return JsonResponse(context, safe=False)
 
 
-def sale_complete(request):
+# @branch_required(branch=('branch_id'))
+def sale_complete(request, pk):
+    branch = Branch.objects.get(id=pk)
     transaction_id = datetime.now().timestamp()
     data = json.loads(request.body)
    
     staff = request.user
-    sale, created = Sale.objects.get_or_create(staff=staff, completed=False)
+    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
     sale.transaction_id = transaction_id
     total = float(data['payment']['total_cart'])
     sale.final_total_price = sale.get_cart_total
@@ -233,13 +294,18 @@ def sale_complete(request):
 
     messages.success(request, 'sale completed')
 
+    context = {
+        'branch':branch
+    }
+
 #   need to add shop in other to manage multiple shops and staffs per shop
-    return JsonResponse('Payment completed', safe=False)
+    return JsonResponse(context, 'Payment completed', safe=False)
 
 @login_required
 @is_unsubscribed
 @for_admin    
 def sales(request):
+    # add filter option for date and branches
     sale = Sale.objects.all().order_by('-date_updated')
     paginator = Paginator(Sale.objects.all().order_by('-date_updated'), 10)
     page = request.GET.get('page')
@@ -320,14 +386,14 @@ def profitData(request, pk):
     return JsonResponse(profits, safe=False)
 
 
-
+#  only admin can create categories and products
 @for_sub_admin
 @login_required
 @is_unsubscribed
 def product_category(request):
     products = Product.objects.all().order_by('-date_created')
     category = Category.objects.filter().all()
-    paginator = Paginator(Product.objects.all(), 3)
+    paginator = Paginator(Product.objects.all(), 15)
     page = request.GET.get('page')
     products_page = paginator.get_page(page)
     nums = "a" *products_page.paginator.num_pages
@@ -353,7 +419,7 @@ def product_category(request):
     return render(request, 'ims/products.html', context)
 
 
-@for_sub_admin
+@for_admin
 def product(request, pk):
     products = Product.objects.get(id=pk)
 
@@ -363,7 +429,7 @@ def product(request, pk):
     return render(request, 'ims/modal_edit_product.html', context)
 
 
-@for_sub_admin
+@for_admin
 def edit_product(request):
     if request.method == 'POST':
         product = Product.objects.get(id = request.POST.get('id'))
@@ -415,7 +481,7 @@ def category_list(request):
     return render(request, 'ims/category.html', context)
 
 
-@for_sub_admin
+@for_admin
 @login_required
 @is_unsubscribed
 def category(request, pk):
@@ -448,7 +514,7 @@ def delete_category(request):
             messages.success(request, "Succesfully deleted")
             return redirect('category_list')
 
-@for_sub_admin
+@for_admin
 @login_required
 @is_unsubscribed
 def branchInventory(request):
@@ -461,9 +527,10 @@ def branchInventory(request):
     return render(request, 'ims/branch_inv.html', context)
 
 
-@for_sub_admin
+@for_admin
 @login_required
 @is_unsubscribed
+# @branch_required(branch=('branch_id'))
 def inventory_list(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
@@ -519,9 +586,11 @@ def edit_inventory(request):
 
 
 @for_sub_admin
-def restock(request):
+# @branch_required(branch=('branch_id'))
+def restock(request, pk):
+    branch = Branch.objects.get(id=pk)
     if request.method == 'POST':
-        inventory = Inventory.objects.get(id = request.POST.get('id'))
+        inventory = Inventory.objects.filter(branch_id = pk).get(id = request.POST.get('id'))
         if inventory != None:
             form = RestockForm(request.POST, instance=inventory)
             if form.is_valid():
@@ -531,9 +600,15 @@ def restock(request):
                 messages.success(request, 'successfully updated')
                 return redirect('inventorys')
 
+    context = {
+        'branch':branch
+    }
+    return HttpResponse(context)
+
 @for_sub_admin
 @login_required
 @is_unsubscribed
+# @branch_required(branch=('branch_id'))
 def inventoryView(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
@@ -557,7 +632,7 @@ def inventoryView(request, pk):
     return render(request, 'ims/product_list.html', context)
 
 
-@for_sub_admin
+@for_admin
 @login_required
 @is_unsubscribed
 def branchCount(request):
@@ -572,6 +647,7 @@ def branchCount(request):
 @for_sub_admin
 @login_required
 @is_unsubscribed
+# @branch_required(branch=('branch_id'))
 def countView(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
@@ -586,9 +662,11 @@ def countView(request, pk):
 
 
 @for_sub_admin
-def addCount(request):
+# @branch_required(branch=('branch_id'))
+def addCount(request, pk):
     if request.method == 'POST':
-        inventory = Inventory.objects.get(id = request.POST.get('id'))
+        branch = Branch.objects.get(id=pk)
+        inventory = Inventory.objects.filter(branch_id = pk).get(id = request.POST.get('id'))
         if request.method != None:
             form = AddCountForm(request.POST, instance=inventory)
             if form.is_valid():
@@ -597,6 +675,11 @@ def addCount(request):
                 inventory.save()
                 messages.success(request, 'Count Added Successfully')
                 return redirect('count')
+    context = {
+        'branch':branch
+    }
+
+    return HttpResponse(context)
 
 @for_admin
 def delete_inventory(request):
@@ -607,14 +690,31 @@ def delete_inventory(request):
             messages.success(request, "Succesfully deleted")
             return redirect('inventorys')
 
+
 @for_admin
 @login_required
 @is_unsubscribed
-def inventoryAudit(request):
-    inventory = Inventory.objects.all()
-    audit = Inventory.history.all()
+def branchAudit(request):
+    branch = Branch.objects.all()
 
     context = {
+        'branch':branch
+    }
+
+    return render(request, 'ims/branch_audit.html', context)
+
+
+@for_admin
+@login_required
+@is_unsubscribed
+# @branch_required(branch=('branch_id'))
+def inventoryAudit(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
+    audit = Inventory.history.filter(branch_id = pk).all()
+
+    context = {
+        'branch': branch,
         'inventory':inventory,
         'audit':audit
     }

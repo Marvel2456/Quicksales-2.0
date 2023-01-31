@@ -4,7 +4,7 @@
     <div class="sidepanel-inner d-flex flex-column">
         <a href="#" id="sidepanel-close" class="sidepanel-close d-xl-none">&times;</a>
         <div class="app-branding">
-            <a class="app-logo" href="{% url 'index' %}"><span class="logo-text">Quicksales</span></a>
+            <a class="app-logo" href="."><span class="logo-text">Quicksales</span></a>
 
         </div><!--//app-branding-->  
         
@@ -71,7 +71,7 @@
                 </li><!--//nav-item--> 
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if 'store' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'store' %}">
+                    <a {% if 'branchstore' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'branchstore' %}">
                         <span class="nav-icon">
                             <svg width="16" height="16" fill="currentColor" class="bi bi-cart4" viewBox="0 0 16 16">
                                 <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
@@ -92,7 +92,7 @@
                          <span class="nav-link-text">Sales</span>
                     </a><!--//nav-link-->
                 </li>
-                <li class="nav-item">
+                {% comment %} <li class="nav-item">
                     <!--//Bootstrap Icons -->
                     <a {% if 'records' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'records' %}">
                         <span class="nav-icon">
@@ -102,10 +102,10 @@
                          </span>
                          <span class="nav-link-text">Records</span>
                     </a><!--//nav-link-->
-                </li>
+                </li> {% endcomment %}
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if 'price_audit' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'price_audit' %}">
+                    <a {% if 'branchaudit' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'branchaudit' %}">
                         <span class="nav-icon">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-card-list" fill="currentColor">
                             <path fill-rule="evenodd" d="M14.5 3h-13a.5.5 0 0 0-.5.5v9a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-9a.5.5 0 0 0-.5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z"/>
@@ -144,7 +144,7 @@
                 </li>		
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if 'reports' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'reports' %}">
+                    <a {% if 'branchrep' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'branchrep' %}">
                         <span class="nav-icon">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up-arrow" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm10 3.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0V4.9l-3.613 4.417a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61L13.445 4H10.5a.5.5 0 0 1-.5-.5Z"/>
@@ -182,7 +182,7 @@
                 {% elif request.user.is_sub_admin %}
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if '/' == request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'index' %}">
+                    <a {% if 'dashboard' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'dashboard' %}">
                         <span class="nav-icon">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-columns-gap" fill="currentColor">
                             <path fill-rule="evenodd" d="M6 1H1v3h5V1zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12h-5v3h5v-3zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8H1v7h5V8zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6h-5v7h5V1zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z"/>
@@ -215,9 +215,10 @@
                          <span class="nav-link-text">Products</span>
                     </a><!--//nav-link-->
                 </li><!--//nav-item-->
+                {% if request.user.branch == branch %}
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if 'branchinv' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'branchinv' %}">
+                    <a {% if 'inventorys' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'inventorys' branch.id %}">
                         <span class="nav-icon">
                             <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-folder" fill="currentColor">
                                 <path d="M9.828 4a3 3 0 0 1-2.12-.879l-.83-.828A1 1 0 0 0 6.173 2H2.5a1 1 0 0 0-1 .981L1.546 4h-1L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3v1z"/>
@@ -229,7 +230,7 @@
                     </a><!--//nav-link-->
                 </li><!--//nav-item-->
                 <li class="nav-item has-submenu">
-                    <a {% if 'branchcount' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'branchcount' %}">
+                    <a {% if 'count' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'count' branch.id %}">
                         <span class="nav-icon">
                             <svg width="16" height="16" fill="currentColor" class="bi bi-tags" viewBox="0 0 16 16">
                                 <path d="M3 2v4.586l7 7L14.586 9l-7-7H3zM2 2a1 1 0 0 1 1-1h4.586a1 1 0 0 1 .707.293l7 7a1 1 0 0 1 0 1.414l-4.586 4.586a1 1 0 0 1-1.414 0l-7-7A1 1 0 0 1 2 6.586V2z"/>
@@ -240,6 +241,7 @@
                         <span class="nav-link-text">Count</span>
                     </a>
                 </li><!--//nav-item-->
+                {% endif %}
                 <li class="nav-item has-submenu">
                     <a {% if 'create_ticket' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'create_ticket' %}">
                         <span class="nav-icon">
@@ -252,11 +254,10 @@
                         <span class="nav-link-text">Add Ticket</span>
                     </a>
                 </li><!--//nav-item-->
-                
-                {% else %}
+                {% elif request.user.is_work_staff and request.user.branch == branch %}
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if '/' == request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'index' %}">
+                    <a {% if 'dashboard' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'dashboard' %}">
                         <span class="nav-icon">
                         <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-columns-gap" fill="currentColor">
                             <path fill-rule="evenodd" d="M6 1H1v3h5V1zM1 0a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1H1zm14 12h-5v3h5v-3zm-5-1a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1h-5zM6 8H1v7h5V8zM1 7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V8a1 1 0 0 0-1-1H1zm14-6h-5v7h5V1zm-5-1a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V1a1 1 0 0 0-1-1h-5z"/>
@@ -267,7 +268,7 @@
                 </li><!--//nav-item-->
                 <li class="nav-item">
                     <!--//Bootstrap Icons -->
-                    <a {% if 'store' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'store' %}">
+                    <a {% if 'store' in request.path %} class="nav-link active" {% else %} class="nav-link" {% endif %} href="{% url 'store' branch.id %}">
                         <span class="nav-icon">
                             <svg width="16" height="16" fill="currentColor" class="bi bi-cart4" viewBox="0 0 16 16">
                                 <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
