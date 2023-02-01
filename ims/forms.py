@@ -8,8 +8,24 @@ class UserCreateForm(UserCreationForm):
     class Meta:
         model = CustomUser
         fields = (
-            'username', 'password1', 'password2', 'is_admin', 'is_sub_admin', 'is_work_staff', 'branch'
+            'username', 'password1', 'password2', 'is_admin', 'is_sub_admin', 'is_work_staff', 'branch', 'pos'
             )
+
+        widgets = {
+            'branch' : forms.Select(attrs={'class':'form-select form-control', 'placeholder':'brabch'}),
+            'pos': forms.Select(attrs={'class':'form-control', 'placeholder':'Pos'})
+        }
+
+
+class UserEditForm(ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'is_admin', 'is_sub_admin', 'is_work_staff', 'branch', 'pos')
+
+        widgets = {
+            'branch' : forms.Select(attrs={'class':'form-select', 'placeholder':'brabch'}),
+            'pos': forms.Select(attrs={'class':'form-select', 'placeholder':'Pos'})
+        }
 
 class UserForm(ModelForm):
     class Meta:

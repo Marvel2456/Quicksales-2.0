@@ -527,7 +527,7 @@ def branchInventory(request):
     return render(request, 'ims/branch_inv.html', context)
 
 
-@for_admin
+@for_sub_admin
 @login_required
 @is_unsubscribed
 # @branch_required(branch=('branch_id'))
@@ -535,7 +535,7 @@ def inventory_list(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
     product = Product.objects.filter().all()
-    paginator = Paginator(Inventory.objects.all(), 3)
+    paginator = Paginator(Inventory.objects.all(), 15)
     page = request.GET.get('page')
     inventory_page = paginator.get_page(page)
     nums = "a" *inventory_page.paginator.num_pages
@@ -561,7 +561,7 @@ def inventory_list(request, pk):
     }
     return render(request, 'ims/inventory.html', context)
 
-
+@for_admin
 @login_required
 @is_unsubscribed
 def inventory(request, pk):
@@ -613,7 +613,7 @@ def inventoryView(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
     product = Product.objects.filter().all()
-    paginator = Paginator(Inventory.objects.all(), 3)
+    paginator = Paginator(Inventory.objects.all(), 15)
     page = request.GET.get('page')
     inventory_page = paginator.get_page(page)
     nums = "a" *inventory_page.paginator.num_pages
@@ -765,11 +765,13 @@ def staffs(request):
 @for_admin
 def staff(request, pk):
     staff = CustomUser.objects.get(id=pk)
+    form = UserEditForm()
 
     context = {
         'staff':staff,
+        'form':form
     }
-    return render(request, 'ims/staff.html', context)
+    return render(request, 'ims/staff_edit.html', context)
 
 
 @login_required

@@ -29,6 +29,14 @@
               <label for="password2" class="form-label">Confirm Password</label>
               <input name="password2" type="password" class="form-control" placeholder="Confirm Password" required {% block Value-password2 %} {% endblock Value-password2 %}>
             </div>
+            <div class="mb-3">
+              <label for="branch" class="form-label">Branch</label>
+              {{form.branch}}
+            </div>
+            <div class="mb-3">
+              <label for="branch" class="form-label">Pos</label>
+              {{form.pos}}
+            </div>
   
             {% comment %} <div class="mb-3">
               <label for="first_name" class="form-label">First Name</label>

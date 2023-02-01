@@ -6,7 +6,6 @@ from .models import CustomUser, LoggedIn, Pos, Branch, Shop
 from .forms import CreateBranchForm, EditBranchForm, CreatePosForm, EditPosForm
 from .decorators import for_admin, for_sub_admin, is_unsubscribed
 from ims.models import Sale, SalesItem, Inventory
-from django.urls import reverse
 # Create your views here.
 
 def loginUser(request):
@@ -21,7 +20,6 @@ def loginUser(request):
             messages.info(request, f'Subscription has expired kindly renew to continue')
             return redirect('login')
         elif user is not None and user.is_subscribed==True:
-            # make a seperate login page for the sub admin and staffs and redirect them there when they login.
             if user.is_active and user.is_admin:
                 login(request, user)
                 LoggedIn.objects.create(staff=user,
