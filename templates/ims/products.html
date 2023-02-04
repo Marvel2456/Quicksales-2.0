@@ -51,21 +51,37 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    {% if user.is_admin %}
                                     <div class="m-2 py-2">
                                         <a class="btn app-btn-secondary " data-bs-toggle="modal" data-bs-target="#addProductModal">
                                             <i class="fas fa-plus"></i>
                                             Add Product
                                         </a>
-                                    </div>    
+                                    </div> 
+                                    {% else %}
+                                    <div class="m-2 py-2" style="display:None;">
+                                        <a class="btn app-btn-secondary " data-bs-toggle="modal" data-bs-target="#addProductModal">
+                                            <i class="fas fa-plus"></i>
+                                            Add Product
+                                        </a>
+                                    </div> 
+                                    {% endif %}   
                                     {% for products in products_page %}
                                     <tr>
                                         <td class="cell"><span class="truncate">{{products.product_name}}</span></td>
                                         <td class="cell">{{products.category}}</td>
                                         <td class="cell"><span class="note">{{products.last_updated}}</span></td>
+                                        {% if user.is_admin %}
                                         <td class="cell">
                                             <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" data-bs-target="#editProductModal{{products.pk}}"><i class="fa-solid fa-pen-to-square"></i></a>&nbsp;
                                             <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{products.pk}}"><i class="fa-solid fa-trash-can"></i></a>
                                         </td>
+                                        {% else %}
+                                        <td class="cell" style="display:None;">
+                                            <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" data-bs-target="#editProductModal{{products.pk}}"><i class="fa-solid fa-pen-to-square"></i></a>&nbsp;
+                                            <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" data-bs-target="#deleteProductModal{{products.pk}}"><i class="fa-solid fa-trash-can"></i></a>
+                                        </td>
+                                        {% endif %}
                                     </tr>
                                     {% include 'ims/delete_product.html' %}
                                     {% include 'ims/modal_edit_product.html' %}

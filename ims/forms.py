@@ -97,17 +97,17 @@ class CreateInventoryForm(ModelForm):
                 'product': forms.Select(attrs={'class':'form-control form-select'})
             }
 
-    def clean(self):
-        super(CreateInventoryForm, self).clean()
+    # def clean(self):
+    #     super(CreateInventoryForm, self).clean()
 
-        product = self.cleaned_data.get('product')
+    #     product = self.cleaned_data.get('product')
 
-        for inventory in Inventory.objects.all():
-            if inventory.product.product_name == product.product_name:
-                self._errors['product'] = self.error_class([
-                'The inventory you tried to create already exists'])
+    #     for inventory in Inventory.objects.all():
+    #         if inventory.product.product_name == product.product_name:
+    #             self._errors['product'] = self.error_class([
+    #             'The inventory you tried to create already exists'])
 
-        return self.cleaned_data   
+    #     return self.cleaned_data   
 
 class RestockForm(ModelForm):
     class Meta:

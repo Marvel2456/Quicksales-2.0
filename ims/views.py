@@ -142,7 +142,6 @@ def branchStore(request):
 @login_required
 @is_unsubscribed
 @for_staff
-# @branch_required(branch=('branch_id'))
 def store(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
@@ -168,14 +167,14 @@ def store(request, pk):
 @for_staff
 @login_required
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def cart(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
     
     if request.user.is_authenticated:
         staff = request.user
-        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
+        branch = request.user.branch
+        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, branch=branch, completed=False)
         items = sale.salesitem_set.all()
         
     context = {
@@ -190,14 +189,14 @@ def cart(request, pk):
 @for_staff
 @login_required
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def checkout(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
     
     if request.user.is_authenticated:
         staff = request.user
-        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
+        branch = request.user.branch
+        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, branch=branch, completed=False)
         items = sale.salesitem_set.all()
         form = PaymentForm()
         if request.method == 'POST':
@@ -216,9 +215,7 @@ def checkout(request, pk):
     return render(request, 'ims/checkout.html', context)
 
 
-# @branch_required(branch=('branch_id'))
-def updateCart(request, pk):
-    branch = Branch.objects.get(id=pk)
+def updateCart(request):
     data = json.loads(request.body)
     inventoryId = data['inventoryId']
     action = data['action']
@@ -226,9 +223,10 @@ def updateCart(request, pk):
     print('Action:', action)
    
     staff = request.user
-    inventory = Inventory.objects.filter(branch_id = pk).get(id=inventoryId)
-    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
-    saleItem, created = SalesItem.objects.filter(branch_id = pk).get_or_create(sale=sale, inventory=inventory)
+    branch = request.user.branch.id
+    inventory = Inventory.objects.filter(branch_id = branch).get(id=inventoryId)
+    sale, created = Sale.objects.filter(branch_id = branch).get_or_create(staff=staff, branch_id=branch, completed=False)
+    saleItem, created = SalesItem.objects.filter(branch_id = branch).get_or_create(sale=sale, branch_id=branch, inventory=inventory)
 
     if action == 'add':
         saleItem.quantity = (saleItem.quantity + 1)
@@ -245,18 +243,16 @@ def updateCart(request, pk):
     return JsonResponse(context, safe=False)
 
 
-# @branch_required(branch=('branch_id'))
-def updateQuantity(request, pk):
-    branch = Branch.objects.get(id=pk)
+def updateQuantity(request):
     data = json.loads(request.body)
     input_value = int(data['val'])
     inventory_Id = data['invent_id']
     
-   
     staff = request.user
-    inventory = Inventory.objects.filter(branch_id = pk).get(id=inventory_Id)
-    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
-    saleItem, created = SalesItem.objects.filter(branch_id = pk).get_or_create(sale=sale, inventory=inventory)
+    branch = request.user.branch.id
+    inventory = Inventory.objects.filter(branch_id = branch).get(id=inventory_Id)
+    sale, created = Sale.objects.filter(branch_id = branch).get_or_create(staff=staff, branch=branch, completed=False)
+    saleItem, created = SalesItem.objects.filter(branch_id = branch).get_or_create(sale=sale, branch=branch, inventory=inventory)
     saleItem.quantity = input_value
     saleItem.save()
 
@@ -273,14 +269,14 @@ def updateQuantity(request, pk):
     return JsonResponse(context, safe=False)
 
 
-# @branch_required(branch=('branch_id'))
 def sale_complete(request, pk):
     branch = Branch.objects.get(id=pk)
     transaction_id = datetime.now().timestamp()
     data = json.loads(request.body)
    
     staff = request.user
-    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, completed=False)
+    branch = request.user.branch.id
+    sale, created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, branch=branch, completed=False)
     sale.transaction_id = transaction_id
     total = float(data['payment']['total_cart'])
     sale.final_total_price = sale.get_cart_total
@@ -299,7 +295,7 @@ def sale_complete(request, pk):
     }
 
 #   need to add shop in other to manage multiple shops and staffs per shop
-    return JsonResponse(context, 'Payment completed', safe=False)
+    return JsonResponse(context, safe=False)
 
 @login_required
 @is_unsubscribed
@@ -360,7 +356,7 @@ def export_sales_csv(request):
     return response
     
 
-@for_admin
+@for_staff
 @login_required
 @is_unsubscribed
 def reciept(request, pk):
@@ -544,9 +540,12 @@ def inventory_list(request, pk):
     if request.method == "POST":
         form = CreateInventoryForm(request.POST)
         if form.is_valid():
-            form.save()
+            invenvt = form.save(commit=False)
+            invenvt.branch = request.user.branch
+            invenvt.save()
             messages.success(request, 'successfully created')
-            return redirect('inventorys')
+            return redirect('inventorys/'+str(branch.id))
+            # find out why it is redirecting to a wrong url after creating an inventory
     
     if product_contains_query != '' and product_contains_query is not None:
         inventory_page = inventory.filter(product__product_name__icontains=product_contains_query)
@@ -574,15 +573,16 @@ def inventory(request, pk):
 
 
 @for_admin
-def edit_inventory(request):
+def edit_inventory(request, pk):
+    branch = Branch.objects.get(id=pk)
     if request.method == 'POST':
-        inventory = Inventory.objects.get(id = request.POST.get('id'))
+        inventory = Inventory.objects.filter().get(id = request.POST.get('id'))
         if inventory != None:
             form = ReorderForm(request.POST, instance=inventory)
             if form.is_valid():
                 form.save()
                 messages.success(request, 'successfully updated')
-                return redirect('inventorys')
+                return redirect('inventorys/'+str(branch.id))
 
 
 @for_sub_admin
@@ -682,13 +682,14 @@ def addCount(request, pk):
     return HttpResponse(context)
 
 @for_admin
-def delete_inventory(request):
+def delete_inventory(request, pk):
+    branch = Branch.objects.get(id=pk)
     if request.method == 'POST':
-        inventory = Inventory.objects.get(id = request.POST.get('id'))
+        inventory = Inventory.objects.filter(branch_id = pk).get(id = request.POST.get('id'))
         if inventory != None:
             inventory.delete()
             messages.success(request, "Succesfully deleted")
-            return redirect('inventorys')
+            return redirect('inventorys/'+str(branch.id))
 
 
 @for_admin

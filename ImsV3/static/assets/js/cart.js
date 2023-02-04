@@ -5,7 +5,6 @@ for (let i = 0; i< updateCart.length; i++){
         let inventoryId = this.dataset.inventory
         let action = this.dataset.action
         console.log('inventoryId:', inventoryId, 'action:', action)
-        console.log('User:', user)
         
         if(shop){
             UpdateUserCart(inventoryId, action)
@@ -13,10 +12,12 @@ for (let i = 0; i< updateCart.length; i++){
     })
 }
 
+
+
 function UpdateUserCart(inventoryId, action){
     console.log('Sending data')
 
-    let url = '/update_cart/'
+    let url = 'update_cart/'
 
     fetch(url, {
         method:'POST',

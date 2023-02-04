@@ -6,7 +6,7 @@
 
 <div class="app-content pt-3 p-md-3 p-lg-4">
     <div class="container-xl">
-        {% if user.branch == branch or user.is_admin %}
+        {% comment %} {% if user.branch == inventory.branch or user.is_admin %} {% endcomment %}
         
         
         <div class="row g-3 mb-4 align-items-center justify-content-between">
@@ -61,6 +61,7 @@
                                         </a>
                                     </div>    
                                     {% for inventory in inventory_page %}
+                                    {% if inventory.branch == user.branch or user.is_admin %}
                                     <tr>
                                         <td class="cell"><span class="truncate">{{inventory.product.product_name}}</span></td>
                                         <td class="cell">{{inventory.product.category}}</td>
@@ -82,6 +83,7 @@
                                     {% include 'ims/set_reorder.html' %}
                                     {% include 'ims/restock.html' %}
                                     {% include 'ims/add_count.html' %}
+                                    {% endif %}
                                     {% endfor %}
                                     
                                 </tbody>
@@ -115,9 +117,9 @@
         </div><!--//tab-content-->
         
     </div><!--//container-fluid-->
-    {% else %} 
+    {% comment %} {% else %} 
     This is not your branch, you can only access your branch!!!
-    {% endif %}
+    {% endif %} {% endcomment %}
 </div><!--//app-content-->
 
 {% endblock content %}
