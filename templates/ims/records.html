@@ -17,12 +17,12 @@
                        <div class="col-auto">
                            <form class="table-search-form row gx-1 align-items-center" method="GET" action=".">
                               
-                               <div class="col-auto">
-                                   <input type="text" id="search-orders" name="product_name" class="form-control search-orders" placeholder="Product Name">
+                               {% comment %} <div class="col-auto">
+                                   <input type="text" id="search-orders" name="staff" class="form-control search-orders" placeholder="Staff Name">
                                </div>
                                <div class="col-auto">
                                    <button type="submit" class="btn app-btn-secondary">Search</button>
-                               </div>
+                               </div> {% endcomment %}
                            </form>
                            
                        </div><!--col-->
@@ -46,7 +46,7 @@
                                 </thead>
                                 
                                 <tbody>
-                                    {% for login_trail in login_trail %}
+                                    {% for login_trail in login_trail_page %}
                                     <tr>
                                         <td class="cell">{{login_trail.staff}}</td>
                                         <td class="cell"><span class="truncate">{{login_trail.login_id}}</span></td>
@@ -60,25 +60,25 @@
                        
                     </div><!--//app-card-body-->		
                 </div><!--//app-card-->
-                {% comment %} <div class="pagination">
+                <div class="pagination">
                     <span class="step-links">
                       <nav aria-label="Page navigation example">
                         <ul class="pagination" style="color:yellow;">
-                            {% if sale_page.has_previous %}
-                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ sale_page.previous_page_number }}">previous</a></li>
+                            {% if login_trail_page.has_previous %}
+                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ login_trail_page.previous_page_number }}">previous</a></li>
                             {% endif %}
                             {% for i in nums %}
                             <span class="current">
                             <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{forloop.counter}}">{{forloop.counter}}</a></li>
                             </span>
                             {% endfor %}
-                            {% if sale_page.has_next %}
-                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ sale_page.next_page_number }}">next</a></li>
+                            {% if login_trail_page.has_next %}
+                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ login_trail_page.next_page_number }}">next</a></li>
                             {% endif %}
                         </ul>
                       </nav>
                     </span>
-                </div> {% endcomment %}
+                </div>
         </div><!--//tab-content-->             
     </div><!--//container-fluid-->
 </div><!--//app-content-->

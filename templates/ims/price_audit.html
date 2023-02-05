@@ -17,19 +17,8 @@
                         <div class="col-auto">
                             <form class="table-search-form row gx-1 align-items-center" method="GET" action=".">
                                 <div class="col-auto">
-                                    <label for="start_date">Start Date</label>
-                                    <div class="input-group mb-3 date" id="datepicker">
-                                        <input type="text" class="form-control" name="start_date" id="due" placeholder="yy-mm-dd" aria-describedby="basic-addon2">
-                                        <span class="input-group-text" id="basic-addon2"><i class="fa-solid fa-calendar"></i></span>
-                                    </div>
+                                    <input type="text" id="search-orders" name="product" class="form-control search-orders" placeholder="Staff Name">
                                 </div>
-                                <div class="col-auto">
-                                    <label for="end_date">End Date</label>
-                                    <div class="input-group mb-3 date" id="datepicker">
-                                        <input type="text" class="form-control" name="end_date" id="due2" placeholder="yy-mm-dd" aria-describedby="basic-addon2">
-                                        <span class="input-group-text" id="basic-addon2"><i class="fa-solid fa-calendar"></i></span>
-                                    </div>
-                                </div> 
                                 <div class="col-auto">
                                     <button type="submit" class="btn app-btn-secondary">Search</button>
                                 </div>  
@@ -64,7 +53,7 @@
                                 </thead>
                                 
                                 <tbody>
-                                   {% for audit in audit %} 
+                                   {% for audit in audit_page %} 
                                     <tr>
                                         <td>{{audit.history_user}}</td>
                                         <td>{{audit.product.product_name}}</td>
@@ -80,25 +69,25 @@
                        
                     </div><!--//app-card-body-->		
                 </div><!--//app-card-->
-                {% comment %} <div class="pagination">
+                <div class="pagination">
                     <span class="step-links">
                       <nav aria-label="Page navigation example">
                         <ul class="pagination" style="color:yellow;">
-                            {% if sale_page.has_previous %}
-                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ sale_page.previous_page_number }}">previous</a></li>
+                            {% if audit_page.has_previous %}
+                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ audit_page.previous_page_number }}">previous</a></li>
                             {% endif %}
                             {% for i in nums %}
                             <span class="current">
                             <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{forloop.counter}}">{{forloop.counter}}</a></li>
                             </span>
                             {% endfor %}
-                            {% if sale_page.has_next %}
-                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ sale_page.next_page_number }}">next</a></li>
+                            {% if audit_page.has_next %}
+                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ audit_page.next_page_number }}">next</a></li>
                             {% endif %}
                         </ul>
                       </nav>
                     </span>
-                </div> {% endcomment %}
+                </div>
         </div><!--//tab-content-->             
     </div><!--//container-fluid-->
 </div><!--//app-content-->

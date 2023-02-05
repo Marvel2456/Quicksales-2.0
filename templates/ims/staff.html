@@ -18,7 +18,7 @@
                             <form class="table-search-form row gx-1 align-items-center" method="GET" action=".">
                                
                                 <div class="col-auto">
-                                    <input type="text" id="search-orders" name="username" class="form-control search-orders" placeholder="Username">
+                                    <input type="text" id="search-orders" name="username" class="form-control search-orders" placeholder="Staff Name">
                                 </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn app-btn-secondary">Search</button>
@@ -32,7 +32,7 @@
         </div><!--row-->
        
         <nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-4">
-            <a class="flex-sm-fill text-sm-center nav-link active" id="orders-all-tab" data-bs-toggle="tab" href="#orders-all" role="tab" aria-controls="orders-all" aria-selected="true">Products</a>
+            <a class="flex-sm-fill text-sm-center nav-link active" id="orders-all-tab" data-bs-toggle="tab" href="#orders-all" role="tab" aria-controls="orders-all" aria-selected="true">Staffs</a>
         </nav>
         
         <div class="tab-content" id="orders-table-tab-content">
@@ -59,7 +59,7 @@
                                             Create Staff
                                         </a>
                                     </div>    
-                                    {% for staff in staff %}
+                                    {% for staff in staff_page %}
                                     <tr>
                                         <td class="cell"><span class="truncate"><a href="{% url 'staff_detail' staff.id %}">{{staff.username}}</a></span></td>
                                         <td class="cell">{{staff.first_name}} {{staff.last_name}}</td>
@@ -81,25 +81,25 @@
                        
                     </div><!--app-card-body-->		
                 </div><!--app-card-->
-                {% comment %} <div class="pagination">
+                <div class="pagination">
                     <span class="step-links">
                       <nav aria-label="Page navigation example">
                         <ul class="pagination" style="color:yellow;">
-                            {% if products_page.has_previous %}
-                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ products_page.previous_page_number }}">previous</a></li>
+                            {% if staff_page.has_previous %}
+                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ staff_page.previous_page_number }}">previous</a></li>
                             {% endif %}
                             {% for i in nums %}
                             <span class="current">
                             <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{forloop.counter}}">{{forloop.counter}}</a></li>
                             </span>
                             {% endfor %}
-                            {% if products_page.has_next %}
-                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ products_page.next_page_number }}">next</a></li>
+                            {% if staff_page.has_next %}
+                            <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ staff_page.next_page_number }}">next</a></li>
                             {% endif %}
                         </ul>
                       </nav>
                     </span>
-                </div> {% endcomment %}
+                </div>
             </div><!--tab-pane-->
         </div><!--//tab-content-->
         

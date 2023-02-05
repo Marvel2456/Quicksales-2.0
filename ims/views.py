@@ -101,7 +101,6 @@ def branchReport(request):
 @login_required
 @is_unsubscribed
 @for_admin
-# @branch_required(branch=('branch_id'))
 def report(request, pk):
     branch = Branch.objects.get(id=pk)
     now = datetime.now()
@@ -309,12 +308,16 @@ def sales(request):
     nums = "a" *sale_page.paginator.num_pages
     start_date_contains = request.GET.get('start_date')
     end_date_contains = request.GET.get('end_date')
+    branch_contains_query = request.GET.get('branch')
 
     if start_date_contains != '' and start_date_contains is not None:
         sale_page = sale.filter(date_updated__gte=start_date_contains)
 
     if end_date_contains != '' and end_date_contains is not None:
         sale_page = sale.filter(date_updated__lt=end_date_contains)
+
+    if branch_contains_query != '' and branch_contains_query is not None:
+        sale_page = sale.filter(branch__branch_name__icontains=branch_contains_query)
 
     context = {
         'sale':sale,
@@ -522,6 +525,7 @@ def branchInventory(request):
     inventory_page = paginator.get_page(page)
     nums = "a" *inventory_page.paginator.num_pages
     product_contains_query = request.GET.get('product')
+    branch_contains_query = request.GET.get('branch')
     form = AdminCreateInventoryForm
     if request.method == "POST":
         form = AdminCreateInventoryForm(request.POST)
@@ -529,6 +533,13 @@ def branchInventory(request):
             form.save()
             messages.success(request, 'successfully created')
             return redirect('branchinv')
+
+    if product_contains_query != '' and product_contains_query is not None:
+        inventory_page = inventory.filter(product__product_name__icontains=product_contains_query)
+
+    if branch_contains_query != '' and branch_contains_query is not None:
+        inventory_page = inventory.filter(branch__branch_name__icontains=branch_contains_query)
+
 
     context = {
         'inventory':inventory,
@@ -563,7 +574,7 @@ def inventory_list(request, pk):
             invenvt.branch = request.user.branch
             invenvt.save()
             messages.success(request, 'successfully created')
-            return redirect('inventorys/'+str(branch.id))
+            return redirect('dashboard')
             # find out why it is redirecting to a wrong url after creating an inventory
     
     if product_contains_query != '' and product_contains_query is not None:
@@ -678,7 +689,6 @@ def countView(request, pk):
 
 
 @for_sub_admin
-# @branch_required(branch=('branch_id'))
 def addCount(request, pk):
     if request.method == 'POST':
         branch = Branch.objects.get(id=pk)
@@ -724,16 +734,24 @@ def branchAudit(request):
 @for_admin
 @login_required
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def inventoryAudit(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
     audit = Inventory.history.filter(branch_id = pk).all()
+    paginator = Paginator(Inventory.history.filter(branch_id = pk).all(), 15)
+    page = request.GET.get('page')
+    audit_page = paginator.get_page(page)
+    nums = "a" *audit_page.paginator.num_pages
+    product_contains_query = request.GET.get('product')
 
+    if product_contains_query != '' and product_contains_query is not None:
+        audit_page = inventory.filter(product__product_name__icontains=product_contains_query)
     context = {
         'branch': branch,
         'inventory':inventory,
-        'audit':audit
+        'audit':audit,
+        'audit_page':audit_page,
+        'nums':nums
     }
     return render(request, 'ims/price_audit.html', context)
 
@@ -758,6 +776,10 @@ def export_audit_csv(request):
 @for_admin
 def staffs(request): 
     staff = CustomUser.objects.all()
+    paginator = Paginator(CustomUser.objects.all(), 15)
+    page = request.GET.get('page')
+    staff_page = paginator.get_page(page)
+    nums = "a" *staff_page.paginator.num_pages
     staff_contains = request.GET.get('username')
     form = UserCreateForm()
     if request.method == 'POST':
@@ -768,10 +790,12 @@ def staffs(request):
             messages.success(request, 'Account successfully created for ' + username)
 
     if staff_contains != '' and staff_contains is not None:
-        staff = staff.filter(username__icontains=staff_contains)
+        staff_page = staff.filter(username__icontains=staff_contains)
    
     context = {
         'staff':staff,
+        'staff_page':staff_page,
+        'nums':nums,
         'form':form
     }
     return render(request, 'ims/staff.html', context)
@@ -820,9 +844,19 @@ def delete_staff(request):
 @is_unsubscribed
 def record(request):
     login_trail = LoggedIn.objects.all().order_by('-timestamp')
+    paginator = Paginator(LoggedIn.objects.all(), 15)
+    page = request.GET.get('page')
+    login_trail_page = paginator.get_page(page)
+    nums = "a" *login_trail_page.paginator.num_pages
+    staff_contains = request.GET.get('staff')
+
+    if staff_contains != '' and staff_contains is not None:
+        login_trail_page = login_trail.filter(staff__icontains=staff_contains)
 
     context = {
         'login_trail':login_trail,
+        'login_trail_page':login_trail_page,
+        'nums':nums
     }
     return render(request, 'ims/records.html', context)
 
