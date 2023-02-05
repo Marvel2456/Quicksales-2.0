@@ -36,13 +36,16 @@
                                 <td>{{salesitem.quantity}}</td>
                                 <td>{{salesitem.inventory.sale_price}}</td>
                                 <td>{{salesitem.get_total}}</td>
-                                
                               </tr>
-                              {% endfor %}
+                            {% endfor %}
                             </tbody>
                         </table>
                     </div>
+                    {% if user.is_admin %}
+                    <a class="btn btn-secondary hidden-print" id="btnPrint" href="{% url 'store' branch.id %}">Print</a>
+                    {%else%}
                     <a class="btn btn-secondary hidden-print" id="btnPrint" href="{% url 'store' user.branch.id %}">Print</a>
+                    {% endif %}
                 </div>
             </div>
         </div>

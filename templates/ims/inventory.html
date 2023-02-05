@@ -61,7 +61,7 @@
                                         </a>
                                     </div>    
                                     {% for inventory in inventory_page %}
-                                    {% if inventory.branch == user.branch or user.is_admin %}
+                                    {% if inventory.branch == user.branch %}
                                     <tr>
                                         <td class="cell"><span class="truncate">{{inventory.product.product_name}}</span></td>
                                         <td class="cell">{{inventory.product.category}}</td>
@@ -76,13 +76,11 @@
                                         </td>
                                         <td class="cell">
                                             <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" style="cursor:pointer;" data-bs-target="#reorderModal{{inventory.pk}}"><i class="fa-solid fa-pen-to-square"></i></a>&nbsp;
-                                            <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" style="cursor:pointer;" data-bs-target="#deleteInventoryModal{{inventory.pk}}"><i class="fa-solid fa-trash-can"></i></a>&nbsp;
                                         </td>
                                     </tr>
                                     {% include 'ims/delete_inventory.html' %}
                                     {% include 'ims/set_reorder.html' %}
                                     {% include 'ims/restock.html' %}
-                                    {% include 'ims/add_count.html' %}
                                     {% endif %}
                                     {% endfor %}
                                     

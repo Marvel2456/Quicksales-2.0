@@ -3,6 +3,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from account.models import CustomUser
 from . models import *
+from account.models import Branch
 
 class UserCreateForm(UserCreationForm):
     class Meta:
@@ -97,6 +98,7 @@ class CreateInventoryForm(ModelForm):
                 'product': forms.Select(attrs={'class':'form-control form-select'})
             }
 
+
     # def clean(self):
     #     super(CreateInventoryForm, self).clean()
 
@@ -107,7 +109,19 @@ class CreateInventoryForm(ModelForm):
     #             self._errors['product'] = self.error_class([
     #             'The inventory you tried to create already exists'])
 
-    #     return self.cleaned_data   
+    #     return self.cleaned_data 
+    # 
+
+class AdminCreateInventoryForm(ModelForm):
+    class Meta:
+        model = Inventory
+        fields = ('product', 'branch', 'quantity', 'cost_price', 'sale_price', 'reorder_level')
+
+
+        widgets = {
+                'product': forms.Select(attrs={'class':'form-select'}),
+                'branch': forms.Select(attrs={'class':'form-select'})
+            }  
 
 class RestockForm(ModelForm):
     class Meta:

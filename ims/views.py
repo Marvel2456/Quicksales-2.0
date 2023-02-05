@@ -514,10 +514,30 @@ def delete_category(request):
 @login_required
 @is_unsubscribed
 def branchInventory(request):
-    branch = Branch.objects.all()
+    inventory = Inventory.objects.all().order_by('branch')
+    product = Product.objects.filter().all()
+    branch = Branch.objects.filter().all()
+    paginator = Paginator(Inventory.objects.all(), 15)
+    page = request.GET.get('page')
+    inventory_page = paginator.get_page(page)
+    nums = "a" *inventory_page.paginator.num_pages
+    product_contains_query = request.GET.get('product')
+    form = AdminCreateInventoryForm
+    if request.method == "POST":
+        form = AdminCreateInventoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'successfully created')
+            return redirect('branchinv')
 
     context = {
-        'branch':branch
+        'inventory':inventory,
+        'product':product,
+        'branch':branch,
+        'form':form,
+        'inventory_page':inventory_page,
+        'nums':nums,
+
     }
 
     return render(request, 'ims/branch_inv.html', context)
@@ -526,7 +546,6 @@ def branchInventory(request):
 @for_sub_admin
 @login_required
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def inventory_list(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
@@ -560,16 +579,16 @@ def inventory_list(request, pk):
     }
     return render(request, 'ims/inventory.html', context)
 
-@for_admin
-@login_required
-@is_unsubscribed
-def inventory(request, pk):
-    inventory = Inventory.objects.get(id=pk)
+# @for_admin
+# @login_required
+# @is_unsubscribed
+# def inventory(request, pk):
+#     inventory = Inventory.objects.get(id=pk)
 
-    context = {
-        'inventory':inventory
-    }
-    return render(request, 'ims/edit_inventory.html', context)
+#     context = {
+#         'inventory':inventory
+#     }
+#     return render(request, 'ims/edit_inventory.html', context)
 
 
 @for_admin
@@ -586,7 +605,6 @@ def edit_inventory(request, pk):
 
 
 @for_sub_admin
-# @branch_required(branch=('branch_id'))
 def restock(request, pk):
     branch = Branch.objects.get(id=pk)
     if request.method == 'POST':
@@ -608,7 +626,6 @@ def restock(request, pk):
 @for_sub_admin
 @login_required
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def inventoryView(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
@@ -647,7 +664,6 @@ def branchCount(request):
 @for_sub_admin
 @login_required
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def countView(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
