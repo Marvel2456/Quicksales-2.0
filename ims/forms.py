@@ -110,7 +110,7 @@ class CreateInventoryForm(ModelForm):
     #             'The inventory you tried to create already exists'])
 
     #     return self.cleaned_data 
-    # 
+    
 
 class AdminCreateInventoryForm(ModelForm):
     class Meta:

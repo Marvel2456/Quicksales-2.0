@@ -107,10 +107,22 @@ def staffPosView(request, pk):
 def posSaleView(request, pk):
     pos = Pos.objects.get(id=pk)
     sale = Sale.objects.filter(staff_id = pk)
+    start_date_contains = request.GET.get('start_date')
+    end_date_contains = request.GET.get('end_date')
+
+    if start_date_contains != '' and start_date_contains is not None:
+        sale = sale.filter(date_updated__gte=start_date_contains)
+
+    if end_date_contains != '' and end_date_contains is not None:
+        sale = sale.filter(date_updated__lt=end_date_contains)
+    
+    
+    total_profits = sum(sale.values_list('total_profit', flat=True))
 
     context = {
         'pos':pos,
-        'sale':sale
+        'sale':sale,
+        'total_profits':total_profits
     }
     return render(request, 'account/pos_sale.html', context)
 
