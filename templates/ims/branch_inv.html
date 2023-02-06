@@ -47,6 +47,7 @@
                             <table class="table app-table-hover mb-0 text-left" id="example">
                                 <thead>
                                     <tr>
+                                        <th class="cell">Branch</th>
                                         <th class="cell">Product</th>
                                         <th class="cell">Category</th>
                                         <th class="cell">Quantity</th>
@@ -64,8 +65,8 @@
                                     </div>    
                                     {% for inventory in inventory_page %}
                                     <tr>
-                                        <td class="cell"><span class="truncate">{{inventory.product.product_name}}</span></td>
                                         <td class="cell">{{inventory.branch}}</td>
+                                        <td class="cell"><span class="truncate">{{inventory.product.product_name}}</span></td>
                                         <td class="cell">{{inventory.product.category}}</td>
                                         <td class="cell">{{inventory.store_quantity}}</span></td>
                                         <td class="cell">{{inventory.last_updated}}</td>

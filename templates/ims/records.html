@@ -40,6 +40,7 @@
                                 <thead>
                                     <tr>
                                         <th class="cell">staff</th>
+                                        <th class="cell">Branch</th>
                                         <th class="cell">login Id</th>
                                         <th class="cell">Date & Time</th>
                                     </tr>
@@ -49,6 +50,7 @@
                                     {% for login_trail in login_trail_page %}
                                     <tr>
                                         <td class="cell">{{login_trail.staff}}</td>
+                                        <td class="cell">{{login_trail.staff.branch}}</td>
                                         <td class="cell"><span class="truncate">{{login_trail.login_id}}</span></td>
                                         <td class="cell"><span>{{login_trail.timestamp}}</span></td>
                                     </tr>
