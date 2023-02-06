@@ -30,7 +30,6 @@ def branchDasboard(request):
 
 @login_required(login_url=('login'))
 @is_unsubscribed
-# @branch_required(branch=('branch_id'))
 def dashboard(request, pk):
     branch = Branch.objects.get(id=pk)
     now = datetime.now()
@@ -45,26 +44,29 @@ def dashboard(request, pk):
     transaction = len(Sale.objects.filter(
         date_added__year=current_year,
         date_added__month = current_month,
-        date_added__day = current_day
+        date_added__day = current_day,
+        branch_id = pk
     ))
     today_sales = Sale.objects.filter(
         date_added__year=current_year,
         date_added__month = current_month,
-        date_added__day = current_day
+        date_added__day = current_day,
+        branch_id = pk
     ).all()
     total_sales = sum(today_sales.values_list('final_total_price',flat=True))
     # make graph for highest paid products per day
     today_profit = Sale.objects.filter(
         date_added__year=current_year,
         date_added__month = current_month,
-        date_added__day = current_day
+        date_added__day = current_day,
+        branch_id = pk
     ).all()
     total_profits = sum(today_profit.values_list('total_profit', flat=True))
     pending = ErrorTicket.objects.filter(status='Pending')
-    inventory = Inventory.objects.filter(branch_id = pk).all()
+    inventory = Inventory.objects.filter(branch_id = branch).all()
 
-    sale = Sale.objects.filter(branch_id = pk).order_by('-total_profit')[:7]
-    item = SalesItem.objects.filter(branch_id = pk).order_by('-quantity')[:7]
+    sale = Sale.objects.filter(branch_id = branch).order_by('-total_profit')[:7]
+    item = SalesItem.objects.filter(branch_id = branch).order_by('-quantity')[:7]
 
 
     context = {
@@ -130,10 +132,24 @@ def report(request, pk):
 @for_admin
 
 def branchStore(request):
-    branch = Branch.objects.all()
+    inventory = Inventory.objects.all().order_by('branch')
+    paginator = Paginator(Inventory.objects.all(), 15)
+    page = request.GET.get('page')
+    inventory_page = paginator.get_page(page)
+    nums = "a" *inventory_page.paginator.num_pages
+    product_contains_query = request.GET.get('product')
+    staff_contains_query = request.GET.get('branch')
+
+    if product_contains_query != '' and product_contains_query is not None:
+        inventory_page = inventory.filter(product__product_name__icontains=product_contains_query)
+
+    if staff_contains_query != '' and staff_contains_query is not None:
+        inventory_page = inventory.filter(branch__branch_name__icontains=staff_contains_query)
 
     context = {
-        'branch':branch
+        'inventory':inventory,
+        'inventory_page':inventory_page,
+        'nums':nums
     }
     return render(request, 'ims/branchstore.html', context)
 
@@ -141,9 +157,10 @@ def branchStore(request):
 @login_required
 @is_unsubscribed
 @for_staff
-def store(request, pk):
-    branch = Branch.objects.get(id=pk)
-    inventory = Inventory.objects.filter(branch_id = pk).all()
+def store(request):
+    # branch = Branch.objects.get(id=pk)
+    branch = request.user.branch
+    inventory = Inventory.objects.filter(branch_id = branch).all()
     paginator = Paginator(Inventory.objects.all(), 15)
     page = request.GET.get('page')
     inventory_page = paginator.get_page(page)
@@ -166,14 +183,15 @@ def store(request, pk):
 @for_staff
 @login_required
 @is_unsubscribed
-def cart(request, pk):
-    branch = Branch.objects.get(id=pk)
-    inventory = Inventory.objects.filter(branch_id = pk).all()
+def cart(request):
+    # branch = Branch.objects.get(id=pk)
+    
     
     if request.user.is_authenticated:
         staff = request.user
         branch = request.user.branch
-        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, branch=branch, completed=False)
+        inventory = Inventory.objects.filter(branch_id = branch).all()
+        sale , created = Sale.objects.filter(branch_id = branch).get_or_create(staff=staff, branch=branch, completed=False)
         items = sale.salesitem_set.all()
         
     context = {
@@ -188,14 +206,15 @@ def cart(request, pk):
 @for_staff
 @login_required
 @is_unsubscribed
-def checkout(request, pk):
-    branch = Branch.objects.get(id=pk)
-    inventory = Inventory.objects.filter(branch_id = pk).all()
+def checkout(request):
+    # branch = Branch.objects.get(id=pk)
+    
     
     if request.user.is_authenticated:
         staff = request.user
         branch = request.user.branch
-        sale , created = Sale.objects.filter(branch_id = pk).get_or_create(staff=staff, branch=branch, completed=False)
+        inventory = Inventory.objects.filter(branch_id = branch).all()
+        sale , created = Sale.objects.filter(branch_id = branch).get_or_create(staff=staff, branch=branch, completed=False)
         items = sale.salesitem_set.all()
         form = PaymentForm()
         if request.method == 'POST':
@@ -300,7 +319,6 @@ def sale_complete(request, pk):
 @is_unsubscribed
 @for_admin    
 def sales(request):
-    # add filter option for date and branches
     sale = Sale.objects.all().order_by('-date_updated')
     paginator = Paginator(Sale.objects.all().order_by('-date_updated'), 10)
     page = request.GET.get('page')
@@ -349,12 +367,31 @@ def export_sales_csv(request):
     response = HttpResponse(content_type = 'text/csv')
     response['Content-Disposition']='attachment; filename = Sales History'+str(datetime.now())+'.csv'
     writer = csv.writer(response)
-    writer.writerow(['Sales Rep', 'Trans Id', 'Date', 'Quantity', 'Total'])
+    writer.writerow(['Sales Rep', 'Trans Id', 'Date', 'Quantity', 'Total', 'Profit'])
     
     sale = Sale.objects.all()
     
     for sale in sale:
-        writer.writerow([sale.staff, sale.transaction_id, sale.date_updated, sale.get_cart_items, sale.final_total_price])
+        writer.writerow([sale.staff, sale.transaction_id, sale.date_updated, sale.get_cart_items, sale.final_total_price, sale.total_profit])
+    
+    return response
+
+@for_admin
+def export_profit_csv(request):
+    response = HttpResponse(content_type = 'text/csv')
+    response['Content-Disposition']='attachment; filename = Profit History'+str(datetime.now())+'.csv'
+    writer = csv.writer(response)
+    writer.writerow(['Sales Rep', 'Trans Id', 'Date', 'Quantity', 'Total', 'Profit'])
+    writer.writerow(['Total Profit'])
+    
+    sale = Sale.objects.all()
+    
+    for sale in sale:
+        writer.writerow([sale.staff, sale.transaction_id, sale.date_updated, sale.get_cart_items, sale.final_total_price, sale.total_profit])
+
+        total_profits = sum(sale.values_list('total_profit', flat=True))
+        writer.writerow([total_profits])
+    
     
     return response
     

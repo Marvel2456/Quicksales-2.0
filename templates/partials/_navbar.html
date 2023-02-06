@@ -51,14 +51,23 @@
                                 <div class="row gx-2 justify-content-between align-items-center">
                                     <div class="col">
                                         <div class="info"> 
-                                            {% for inventory in inventory %}
+                                        {% for inventory in inventory %}
+                                        {% if user.branch == inventory.branch %}
                                             {% if inventory.store_quantity <= inventory.reorder_level %}
                                             <div class="alert mb-3">
                                                 <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
                                                 <strong>{{inventory.product.product_name}} is low on quantity, kindly restock!!!</strong>
                                             </div>
                                             {% endif %}
-                                            {% endfor %}
+                                        {% elif user.is_admin %}
+                                            {% if inventory.store_quantity <= inventory.reorder_level %}
+                                            <div class="alert mb-3">
+                                                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+                                                <strong>{{inventory.product.product_name}} from branch: {{inventory.branch}} is low on quantity, kindly restock!!!</strong>
+                                            </div>
+                                            {% endif %}
+                                        {% endif %}
+                                        {% endfor %}
                                         </div>
                                     </div><!--//col--> 
                                 </div><!--//row-->
@@ -74,7 +83,7 @@
                 </div><!--//cart-notifications-->
                 <div class="app-utility-item" >
                     {% if request.user.is_admin == True %}
-                    <a class="" href="" title="Cart">
+                    <a class="" href="" title="Cart" style="visibility:hidden;">
                         <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
                         <svg width="1.5em" height="1.5em" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
                             <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
@@ -83,25 +92,16 @@
                     </a>
 
                     {% else %}
-                    {% if request.user.branch == branch %}
-                        {% comment %} {% if sale.get_cart_items in branch %} {% endcomment %}
-                        <a class="" href="{% url 'cart' branch.id %}" title="Cart">
-                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                            <svg width="1.5em" height="1.5em" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                            </svg>
-                            <strong id="addCart" class="text-danger">{{sale.get_cart_items}}</strong>
-                        </a>
-                        {% comment %} {% else %}
-                        <a class="" href="{% url 'cart' user.branch.id %}" title="Cart" style="visibility:hidden;">
-                            <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
-                            <svg width="1.5em" height="1.5em" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
-                            </svg>
-                            <strong id="addCart" class="text-danger">{{sale.get_cart_items}}</strong>
-                        </a>
-                        {% endif %} {% endcomment %}
-                    {% endif %}
+                        {% if request.user.branch == branch %}
+                            {% comment %} {% if sale.get_cart_items in branch %} {% endcomment %}
+                            <a class="" href="{% url 'cart' %}" title="Cart">
+                                <!--//Bootstrap Icons: https://icons.getbootstrap.com/ -->
+                                <svg width="1.5em" height="1.5em" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
+                                    <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                </svg>
+                                <strong id="addCart" class="text-danger">{{sale.get_cart_items}}</strong>
+                            </a>
+                        {% endif %}
                     {% endif %}
                         
                     
