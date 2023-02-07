@@ -1,14 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %} Inventory {% endblock title %}
+{% block title %} Count {% endblock title %}
 
 {% block content %}
 
 <div class="app-content pt-3 p-md-3 p-lg-4">
     <div class="container-xl">
-        {% comment %} {% if user.branch == inventory.branch or user.is_admin %} {% endcomment %}
-        
-        
+        {% if user.branch == branch or user.is_admin %}
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">Inventory</h1>
@@ -18,9 +16,7 @@
                     <div class="row g-2 justify-content-start justify-content-md-end align-items-center">
                         <div class="col-auto">
                             <form class="table-search-form row gx-1 align-items-center" method="GET" action=".">
-                                <div class="col-auto">
-                                    <input type="text" id="search-orders" name="branch" class="form-control search-orders" placeholder="Branch Name">
-                                </div>
+                                
                                 <div class="col-auto">
                                     <input type="text" id="search-orders" name="product" class="form-control search-orders" placeholder="Product Name">
                                 </div>
@@ -35,7 +31,7 @@
             </div><!--col-auto-->
         </div><!--row-->
        
-        <nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-0">
+        <nav id="orders-table-tab" class="orders-table-tab app-nav-tabs nav shadow-sm flex-column flex-sm-row mb-">
             <a class="flex-sm-fill text-sm-center nav-link active" id="orders-all-tab" data-bs-toggle="tab" href="#orders-all" role="tab" aria-controls="orders-all" aria-selected="true">Inventory</a>
         </nav>
         
@@ -47,44 +43,24 @@
                             <table class="table app-table-hover mb-0 text-left" id="example">
                                 <thead>
                                     <tr>
-                                        <th class="cell">Branch</th>
+                                        <th class="cell">id</th>
                                         <th class="cell">Product</th>
-                                        <th class="cell">Category</th>
-                                        <th class="cell">Quantity</th>
-                                        <th class="cell">Last Updated</th>
-                                        <th class="cell"></th>
-                                        <th class="cell"></th>
+                                        <th class="cell">Count</th>
+                                        <th class="cell">Variance</th>
+                                        <th class="cell">Date</th>
+                                        
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <div class="m-2 py-2">
-                                        <a class="btn app-btn-secondary " data-bs-toggle="modal" data-bs-target="#adminAddInventoryModal">
-                                            <i class="fas fa-plus"></i>
-                                            Add Inventory
-                                        </a>
-                                    </div>    
-                                    {% for inventory in inventory_page %}
+                                    {% for audit in audit %}
                                     <tr>
-                                        <td class="cell">{{inventory.branch}}</td>
-                                        <td class="cell"><span class="truncate">{{inventory.product.product_name}}</span></td>
-                                        <td class="cell">{{inventory.product.category}}</td>
-                                        <td class="cell">{{inventory.store_quantity}}</span></td>
-                                        <td class="cell">{{inventory.last_updated}}</td>
-                                        <td class="cell">
-                                            {% if inventory.store_quantity > inventory.reorder_level %}
-                                            <span class="badge bg-success"><a class="btn-sm app-btn-success" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#adminRestockModal{{inventory.pk}}">restock</a></span>
-                                            {% elif inventory.store_quantity <= inventory.reorder_level %}
-                                            <span class="badge bg-danger"><a class="btn-sm app-btn-success" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#addRestockModal{{inventory.pk}}">restock</a></span>
-                                            {% endif %}
-                                        </td>
-                                        <td class="cell">
-                                            <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" style="cursor:pointer;" data-bs-target="#reorderModal{{inventory.pk}}"><i class="fa-solid fa-pen-to-square"></i></a>&nbsp;
-                                            <a class="btn-sm app-btn-secondary" data-bs-toggle="modal" style="cursor:pointer;" data-bs-target="#deleteInventoryModal{{inventory.pk}}"><i class="fa-solid fa-trash-can"></i></a>&nbsp;
-                                        </td>
+                                        <td class="cell">{{forloop.counter}}</td>
+                                        <td class="cell"><span class="truncate">{{audit.product.product_name}}</span></td>
+                                        <td class="cell">{{audit.count}}</td>
+                                        <td class="cell">{{audit.variance}}</td>
+                                        <td class="cell">{{audit.last_updated}}</td>
+                                        
                                     </tr>
-                                    {% include 'ims/delete_inventory.html' %}
-                                    {% include 'ims/set_reorder.html' %}
-                                    {% include 'ims/admin_restock.html' %}
                                     {% endfor %}
                                     
                                 </tbody>
@@ -116,11 +92,10 @@
             </div><!--tab-pane-->
             
         </div><!--//tab-content-->
-        
-    </div><!--//container-fluid-->
-    {% comment %} {% else %} 
+    {% else %} 
     This is not your branch, you can only access your branch!!!
-    {% endif %} {% endcomment %}
+    {% endif %}
+    </div><!--//container-fluid-->
 </div><!--//app-content-->
 
 {% endblock content %}

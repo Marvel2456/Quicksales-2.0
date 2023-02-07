@@ -31,7 +31,7 @@
         </div><!--//row-->
         
         <div class="col-auto pb-2">
-            <a type="submit" class="btn app-btn-secondary" href="{% url 'export_audit' %}">Export to Csv</a>
+            <a type="submit" class="btn app-btn-secondary" href="{% url 'export_audit' branch.id %}">Export to Csv</a>
         </div>  
         <div class="tab-content" id="orders-table-tab-content">
             <div class="tab-pane fade show active" id="orders-all" role="tabpanel" aria-labelledby="orders-all-tab">

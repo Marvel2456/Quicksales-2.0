@@ -377,19 +377,21 @@ def export_sales_csv(request):
     return response
 
 @for_admin
-def export_profit_csv(request):
+def export_profit_csv(request, pk):
+    branch = Branch.objects.get(id=pk)
     response = HttpResponse(content_type = 'text/csv')
     response['Content-Disposition']='attachment; filename = Profit History'+str(datetime.now())+'.csv'
     writer = csv.writer(response)
     writer.writerow(['Sales Rep', 'Trans Id', 'Date', 'Quantity', 'Total', 'Profit'])
-    writer.writerow(['Total Profit'])
     
-    sale = Sale.objects.all()
     
+    sale = Sale.objects.filter(branch_id = pk).all()
+    total_profits = sum(sale.values_list('total_profit', flat=True))
     for sale in sale:
         writer.writerow([sale.staff, sale.transaction_id, sale.date_updated, sale.get_cart_items, sale.final_total_price, sale.total_profit])
-
-        total_profits = sum(sale.values_list('total_profit', flat=True))
+        
+    writer.writerow(['Total Profit'])
+    if total_profits:
         writer.writerow([total_profits])
     
     
@@ -594,11 +596,11 @@ def branchInventory(request):
 @for_sub_admin
 @login_required
 @is_unsubscribed
-def inventory_list(request, pk):
-    branch = Branch.objects.get(id=pk)
-    inventory = Inventory.objects.filter(branch_id = pk).all()
+def inventory_list(request):
+    branch = request.user.branch
+    inventory = Inventory.objects.filter(branch_id = branch).all()
     product = Product.objects.filter().all()
-    paginator = Paginator(Inventory.objects.all(), 15)
+    paginator = Paginator(Inventory.objects.filter(branch_id = branch).all(), 15)
     page = request.GET.get('page')
     inventory_page = paginator.get_page(page)
     nums = "a" *inventory_page.paginator.num_pages
@@ -611,7 +613,7 @@ def inventory_list(request, pk):
             invenvt.branch = request.user.branch
             invenvt.save()
             messages.success(request, 'successfully created')
-            return redirect('dashboard')
+            return redirect('inventorys')
             # find out why it is redirecting to a wrong url after creating an inventory
     
     if product_contains_query != '' and product_contains_query is not None:
@@ -652,17 +654,32 @@ def edit_inventory(request, pk):
                 return redirect('inventorys/'+str(branch.id))
 
 
-@for_sub_admin
-def restock(request, pk):
-    branch = Branch.objects.get(id=pk)
+def adminRestock(request):
     if request.method == 'POST':
-        inventory = Inventory.objects.filter(branch_id = pk).get(id = request.POST.get('id'))
+        inventory = Inventory.objects.get(id = request.POST.get('id'))
         if inventory != None:
-            form = RestockForm(request.POST, instance=inventory)
+            form  = AdminRestockForm(request.POST, instance=inventory)
             if form.is_valid():
                 form.save(commit=False)
                 inventory.quantity += inventory.quantity_restocked
                 inventory.save()
+                messages.success(request, 'successfully updated')
+                return redirect('branchinv')
+
+
+@for_sub_admin
+def restock(request):
+    branch = request.user.branch
+    if request.method == 'POST':
+        inventory = Inventory.objects.filter(branch_id = branch).get(id = request.POST.get('id'))
+        if inventory != None:
+            form = RestockForm(request.POST, instance=inventory)
+            if form.is_valid():
+                invent = form.save(commit=False)
+                invent.quantity += invent.quantity_restocked
+                invent.branch = request.user.branch
+                invent.save()
+            
                 messages.success(request, 'successfully updated')
                 return redirect('inventorys')
 
@@ -678,7 +695,7 @@ def inventoryView(request, pk):
     branch = Branch.objects.get(id=pk)
     inventory = Inventory.objects.filter(branch_id = pk).all()
     product = Product.objects.filter().all()
-    paginator = Paginator(Inventory.objects.all(), 15)
+    paginator = Paginator(Inventory.objects.filter(branch_id = pk).all(), 15)
     page = request.GET.get('page')
     inventory_page = paginator.get_page(page)
     nums = "a" *inventory_page.paginator.num_pages
@@ -708,14 +725,27 @@ def branchCount(request):
     }
 
     return render(request, 'ims/branch_count.html', context)
+    
+def adminCountView(request, pk):
+    branch = Branch.objects.get(id=pk)
+    inventory = Inventory.objects.filter(branch_id = pk).all()
+    audit = Inventory.history.filter(branch_id = pk).all()
+
+    context = {
+        'branch':branch,
+        'inventory':inventory,
+        'audit':audit
+    }
+    return render(request, 'ims/admin_count.html', context)
+
 
 @for_sub_admin
 @login_required
 @is_unsubscribed
-def countView(request, pk):
-    branch = Branch.objects.get(id=pk)
-    inventory = Inventory.objects.filter(branch_id = pk).all()
-    audit = Inventory.history.filter(branch_id = pk).all()
+def countView(request):
+    branch = request.user.branch
+    inventory = Inventory.objects.filter(branch_id = branch).all()
+    audit = Inventory.history.filter(branch_id = branch).all()
 
     context = {
         'branch':branch,
@@ -726,16 +756,17 @@ def countView(request, pk):
 
 
 @for_sub_admin
-def addCount(request, pk):
+def addCount(request):
     if request.method == 'POST':
-        branch = Branch.objects.get(id=pk)
-        inventory = Inventory.objects.filter(branch_id = pk).get(id = request.POST.get('id'))
+        branch = request.user.branch
+        inventory = Inventory.objects.filter(branch_id = branch).get(id = request.POST.get('id'))
         if request.method != None:
             form = AddCountForm(request.POST, instance=inventory)
             if form.is_valid():
-                form.save(commit=False)
-                inventory.variance = inventory.count - inventory.store_quantity
-                inventory.save()
+                invent = form.save(commit=False)
+                invent.variance = inventory.count - inventory.store_quantity
+                invent.branch = request.user.branch
+                invent.save()
                 messages.success(request, 'Count Added Successfully')
                 return redirect('count')
     context = {
@@ -794,13 +825,14 @@ def inventoryAudit(request, pk):
 
 
 @for_admin
-def export_audit_csv(request):
+def export_audit_csv(request, pk):
+    branch = Branch.objects.get(id=pk)
     response = HttpResponse(content_type = 'text/csv')
     response['Content-Disposition']='attachment; filename = Audit History'+str(datetime.now())+'.csv'
     writer = csv.writer(response)
     writer.writerow(['Staff', 'Product', 'Date Restocked', 'Quantity Restocked', 'New Cost Price', 'New Sale Price'])
     
-    audit = Inventory.history.all()
+    audit = Inventory.history.filter(branch_id = pk).all()
     
     for audit in audit:
         writer.writerow([audit.history_user, audit.product.product_name, audit.history_date, audit.quantity_restocked, audit.cost_price, audit.sale_price])

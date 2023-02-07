@@ -1,12 +1,12 @@
-<div class="modal fade" {% block modal-id %} id="addRestockModal{{inventory.pk}}" {% endblock modal-id %} tabindex="-1" aria-labelledby="addRestockModalLabel" aria-hidden="true">
+<div class="modal fade" {% block modal-id %} id="adminRestockModal{{inventory.pk}}" {% endblock modal-id %} tabindex="-1" aria-labelledby="adminRestockModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h6 class="modal-title" id="addRestockModalLabel">{% block modal-title %}<i class="fas fa-plus"></i>&nbsp;&nbsp; Restock{% endblock modal-title %}</h6>
+            <h6 class="modal-title" id="adminRestockModalLabel">{% block modal-title %}<i class="fas fa-plus"></i>&nbsp;&nbsp; Restock{% endblock modal-title %}</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <!--Forms begins-->
-            <form {% block Action %} action="{% url 'restock' %}" {% endblock Action %} method="POST" class="card p-3 border-dark mt-3" enctype="multipart/form-data">
+            <form {% block Action %} action="{% url 'adminrestock' %}" {% endblock Action %} method="POST" class="card p-3 border-dark mt-3" enctype="multipart/form-data">
             {% csrf_token %}
     
                 <div class="modal-body">
@@ -17,12 +17,19 @@
                     </div>
                     {% endblock Value-id %}
 
+                   
+
                     {% block Value-quantity_restocked %}
                     <div class="mb-3">
                         <label for="quantity_restocked" class="form-label">Quantity</label>
-                        <input type="text" class="form-control" id="quantity_restocked" name="quantity_restocked"  value="{{inventory.quantity_restocked}}">
+                        <input type="text" class="form-control" id="quantity_restocked" name="quantity_restocked"  value="">
                     </div>
                     {% endblock Value-quantity_restocked %}
+
+                    <div class="mb-3">
+                        <label for="branch" class="form-label">Branch</label>
+                        {{form.branch}}
+                    </div>
 
                     {% block Value-cost_price %}
                     <div class="mb-3 py-2">
@@ -50,10 +57,10 @@
     </div>
 </div>
 <script>
-    const formInInput = document.querySelector('#quantity_restocked');
-        
-    console.log(formInInput.value);
+    const formsInInInput = document.querySelector('#quantity_restocked');
+      
+    console.log(formsInInInput.value);
 
-    formInInput.value = '';
+    formsInInInput.value = '';
 
 </script>

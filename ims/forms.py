@@ -123,6 +123,16 @@ class AdminCreateInventoryForm(ModelForm):
                 'branch': forms.Select(attrs={'class':'form-select'})
             }  
 
+class AdminRestockForm(ModelForm):
+    class Meta:
+        model = Inventory
+        fields = ('branch', 'quantity_restocked', 'sale_price', 'cost_price')
+
+        widgets = {
+                'branch': forms.Select(attrs={'class':'form-select'})
+            }
+    
+
 class RestockForm(ModelForm):
     class Meta:
         model = Inventory
