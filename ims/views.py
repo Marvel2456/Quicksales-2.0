@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from . forms import *
 from django.core.paginator import Paginator
 from django.http import JsonResponse, HttpResponse
-from django.db.models import Max
 import csv
 import json
 from account.decorators import for_admin, for_staff, for_sub_admin, is_unsubscribed
@@ -22,9 +21,15 @@ from account.decorators import for_admin, for_staff, for_sub_admin, is_unsubscri
 
 def branchDasboard(request):
     branch = Branch.objects.all()
+    paginator = Paginator(Branch.objects.all(), 15)
+    page = request.GET.get('page')
+    branch_page = paginator.get_page(page)
+    nums = "a" *branch_page.paginator.num_pages
 
     context = {
-        'branch':branch
+        'branch':branch,
+        'branch_page':branch_page,
+        'nums':nums
     }
     return render(request, 'ims/branchdash.html', context)
 
@@ -208,8 +213,7 @@ def cart(request):
 @is_unsubscribed
 def checkout(request):
     # branch = Branch.objects.get(id=pk)
-    
-    
+       
     if request.user.is_authenticated:
         staff = request.user
         branch = request.user.branch
