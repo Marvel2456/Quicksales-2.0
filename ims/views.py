@@ -12,6 +12,9 @@ from django.http import JsonResponse, HttpResponse
 import csv
 import json
 from account.decorators import for_admin, for_staff, for_sub_admin, is_unsubscribed
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
 
 
 
@@ -25,6 +28,10 @@ def branchDasboard(request):
     page = request.GET.get('page')
     branch_page = paginator.get_page(page)
     nums = "a" *branch_page.paginator.num_pages
+    branch_contains_query = request.GET.get('branch')
+
+    if branch_contains_query != '' and branch_contains_query is not None:
+        branch_page = branch.filter(branch_name__icontains=branch_contains_query)
 
     context = {
         'branch':branch,
@@ -347,6 +354,27 @@ def sales(request):
         'nums':nums
     }
     return render(request, 'ims/sales.html', context)
+
+
+def sale_pdf(request):
+    sale = Sale.objects.all()
+
+    template_path = 'ims/salepdf.html'
+    context = {'sale': sale}
+    # Create a Django response object, and specify content_type as pdf
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'filename="Sales_report.pdf"'
+    # find the template and render it.
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # create a pdf
+    pisa_status = pisa.CreatePDF(
+       html, dest=response)
+    # if error then show some funny view
+    if pisa_status.err:
+       return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
 
 @for_admin
 def sale(request, pk):

@@ -6,6 +6,7 @@ from .models import CustomUser, LoggedIn, Pos, Branch, Shop
 from .forms import CreateBranchForm, EditBranchForm, CreatePosForm, EditPosForm
 from .decorators import for_admin, for_sub_admin, is_unsubscribed
 from ims.models import Sale, SalesItem, Inventory
+from django.core.paginator import Paginator
 # Create your views here.
 
 def loginUser(request):
@@ -129,6 +130,15 @@ def posSaleView(request, pk):
 
 def terminal(request):
     pos = Pos.objects.all()
+    paginator = Paginator(Pos.objects.all(), 15)
+    page = request.GET.get('page')
+    pos_page = paginator.get_page(page)
+    nums = "a" *pos_page.paginator.num_pages
+    pos_contains = request.GET.get('pos')
+
+    if pos_contains != '' and pos_contains is not None:
+        pos_page = pos.filter(pos_name__icontains=pos_contains)
+
     form = CreatePosForm()
     if request.method == 'POST':
         form = CreatePosForm(request.POST)
@@ -139,6 +149,8 @@ def terminal(request):
 
     context = {
         'pos':pos,
+        'pos_page':pos_page,
+        'nums':nums,
         'form':form
     }
     return render(request, 'account/pos.html', context)

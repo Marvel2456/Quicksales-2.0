@@ -51,6 +51,7 @@ urlpatterns = [
     path('admincount/<str:pk>/', views.adminCountView, name='admincount'),
     path('addcount/', views.addCount, name='addcount'),
     path('productlist/<str:pk>/', views.inventoryView, name='productlist'),
+    path('sale-pdf/', views.sale_pdf, name='sale-pdf'),
 ]
 # watch out if the value of the variance changes or it is stamped to each date
 # what happens when users logs in to another POS and makes sale note: should not be possible

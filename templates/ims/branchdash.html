@@ -11,10 +11,22 @@
         <div class="row g-3 mb-4 align-items-center justify-content-between">
             <div class="col-auto">
                 <h1 class="app-page-title mb-0">My Branch</h1>
+            </div>
+            <div class="col-auto">
+                <form class="docs-search-form row gx-1 align-items-center">
+                    <div class="col-auto">
+                        <input type="text" id="search-docs" name="branch" class="form-control search-docs" placeholder="Branch">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn app-btn-secondary">Search</button>
+                    </div>
+                </form>
+            </div><!--//col-->
+            
         </div><!--//row-->
        
         <div class="row g-4">
-            {% for branch in branch %}
+            {% for branch in branch_page %}
             <div class="col-6 col-md-4 col-xl-3 col-xxl-2">
                 <div class="app-card app-card-doc shadow-sm h-100">
                     <div class="app-card-thumb-holder p-3">
@@ -69,20 +81,21 @@
         
          
         </div><!--//row-->
+        <br>
         <div class="pagination">
             <span class="step-links">
               <nav aria-label="Page navigation example">
                 <ul class="pagination" style="color:yellow;">
-                    {% if login_trail_page.has_previous %}
-                    <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ login_trail_page.previous_page_number }}">previous</a></li>
+                    {% if branch_page.has_previous %}
+                    <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ branch_page.previous_page_number }}">previous</a></li>
                     {% endif %}
                     {% for i in nums %}
                     <span class="current">
                     <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{forloop.counter}}">{{forloop.counter}}</a></li>
                     </span>
                     {% endfor %}
-                    {% if login_trail_page.has_next %}
-                    <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ login_trail_page.next_page_number }}">next</a></li>
+                    {% if branch_page.has_next %}
+                    <li class="page-item"><a class="page-link" style="color:grey;" href="?page={{ branch_page.next_page_number }}">next</a></li>
                     {% endif %}
                 </ul>
               </nav>
