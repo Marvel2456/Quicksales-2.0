@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = True
 
 
-CSRF_TRUSTED_ORIGINS = ['https://*.quicksales-2.up.railway.app','https://*.127.0.0.1'] #for railway setup
+CSRF_TRUSTED_ORIGINS = ['https://*.quicksaless.up.railway.app','https://*.127.0.0.1'] #for railway setup
 ALLOWED_HOSTS = ["*"]
 
 

@@ -37,6 +37,14 @@ class ProductForm(ModelForm):
     class Meta:
        model = Product
        fields = ('product_name', 'category', 'brand', 'unit', 'batch_no')
+
+       def __init__(self, *args, **kwargs):
+           super(ProductForm, self).__init__(*args, **kwargs)
+           self.fields['product_name'].widget.attrs['class'] = 'input'
+           self.fields['category'].widget.attrs['class'] = 'select'
+           self.fields['brand'].widget.attrs['class'] = 'input'
+           self.fields['unit'].widget.attrs['class'] = 'input'
+           self.fields['batch_no'].widget.attrs['class'] = 'input'
        
        widgets = {
            'category': forms.Select(attrs={'class':'form-select'})
@@ -58,13 +66,21 @@ class EditProductForm(ModelForm):
         model = Product
         fields = ('product_name', 'category', 'brand', 'unit', 'batch_no',)
 
-        widget = {
-            'product_name' : forms.TextInput(attrs={'class':'form-control', 'placeholder':'Product'}),
-            'category' : forms.Select(attrs={'class':'form-select form-control', 'placeholder':'Category'}),
-            'brand': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Brand'}),
-            'unit': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Unit'}),
-            'batch_no': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Batch No'})
-        }
+        def __init__(self, *args, **kwargs):
+           super(ProductForm, self).__init__(*args, **kwargs)
+           self.fields['product_name'].widget.attrs['class'] = 'input'
+           self.fields['category'].widget.attrs['class'] = 'select'
+           self.fields['brand'].widget.attrs['class'] = 'input'
+           self.fields['unit'].widget.attrs['class'] = 'input'
+           self.fields['batch_no'].widget.attrs['class'] = 'input'
+
+        # widget = {
+        #     'product_name' : forms.TextInput(attrs={'class':'form-control', 'placeholder':'Product'}),
+        #     'category' : forms.Select(attrs={'class':'form-select form-control', 'placeholder':'Category'}),
+        #     'brand': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Brand'}),
+        #     'unit': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Unit'}),
+        #     'batch_no': forms.TextInput(attrs={'class':'form-control', 'placeholder':'Batch No'})
+        # }
 
 class CategoryForm(ModelForm):
     class Meta:
